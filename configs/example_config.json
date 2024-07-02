@@ -1,0 +1,17 @@
+{
+  "baseDir": "../OpenSearch-Dashboards/src/plugins/data",
+  "exclude": [
+    "\\.test\\.(js|ts|jsx|tsx)$",
+    "\\.d\\.ts$",
+    "fixtures/",
+    "mock",
+    "api\\.md",
+    "_generated_/",
+    "additional_pattern_to_exclude"
+  ],
+  "output": "data/output.txt",
+  "headerPatterns": [
+    "/\\*[\\s\\S]*?Copyright[\\s\\S]*?\\*/",
+    "/\\*\\s*\\*\\s*Licensed[\\s\\S]*?under the License\\.\\s*\\*/"
+  ]
+}
