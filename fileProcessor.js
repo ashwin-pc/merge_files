@@ -1,7 +1,43 @@
 const fs = require("fs").promises;
 const path = require("path");
+const os = require("os");
 const { fileExists, shouldSkipFile, removeHeaders, countTokens } = require("./utils");
 const { outputLargestFiles, outputLargestFolders } = require("./outputFormatters");
+
+// ANSI escape codes for coloring
+const colors = {
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  magenta: "\x1b[35m",
+  cyan: "\x1b[36m",
+  reset: "\x1b[0m"
+};
+
+function getOpenFolderCommand(relativeFilePath) {
+  const folderPath = path.dirname(relativeFilePath);
+  const platform = os.platform();
+
+  let command;
+
+  if (platform === 'win32') {
+    // Windows
+    command = `start ${folderPath}`;
+  } else if (platform === 'darwin') {
+    // macOS
+    command = `open ${folderPath}`;
+  } else {
+    // Other (Linux and others)
+    command = `xdg-open ${folderPath}`;
+  }
+
+  return command;
+}
+
+function colorizeCommand(command, color) {
+  return `${color}${command}${colors.reset}`;
+}
 
 async function combineFiles(baseDir, includePaths, outputPath, skipPatterns, headerPatterns) {
   try {
@@ -43,12 +79,18 @@ async function combineFiles(baseDir, includePaths, outputPath, skipPatterns, hea
 
     await fs.writeFile(outputPath, content);
     console.log(`Combined files written to ${outputPath}`);
-    
+
     outputLargestFiles(fileSizes);
     outputLargestFolders(folderSizes);
 
     const totalTokenCount = fileSizes.reduce((sum, file) => sum + file.tokens, 0);
     console.log(`\nEstimated total number of tokens: ${totalTokenCount}`);
+
+    // Output command to open the folder containing the output file using the cli without changing the current directory
+    const command = getOpenFolderCommand(outputPath);
+    const colorizedCommand = colorizeCommand(command, colors.green); // Using green color for the command
+    console.log(`\nTo open the folder containing the output file, run the following command:`);
+    console.log(colorizedCommand);
   } catch (error) {
     console.error("Error:", error);
   }
@@ -64,7 +106,7 @@ async function processFile(baseDir, filePath, skipPatterns, headerPatterns) {
     fileContent = removeHeaders(fileContent, headerPatterns);
     tokenCount = countTokens(fileContent);
     fileContent = `\n//===== FILE: ${filePath} =====//\n\n${fileContent.trim()}\n`;
-    
+
     const stats = await fs.stat(fullPath);
     fileSize = stats.size;
   } else {
