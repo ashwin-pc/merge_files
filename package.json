@@ -1,0 +1,32 @@
+{
+  "name": "file-combination-tool",
+  "version": "1.0.1",
+  "description": "A tool to combine multiple files from a specific directory",
+  "main": "index.js",
+  "bin": {
+    "file-combination-tool": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashwin-pc/merge_files.git"
+  },
+  "keywords": [
+    "file",
+    "combination",
+    "tool",
+    "merge",
+    "files"
+  ],
+  "author": "Ashwin Pc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ashwin-pc/merge_files/issues"
+  },
+  "homepage": "https://github.com/ashwin-pc/merge_files#readme",
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
+}

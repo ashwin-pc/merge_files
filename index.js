@@ -2,15 +2,7 @@ const path = require("path");
 const { readConfigFile } = require("./config");
 const { combineFiles } = require("./fileProcessor");
 
-async function main() {
-  const args = process.argv.slice(2);
-
-  if (args.length < 1) {
-    console.error("Please provide the path to the configuration file.");
-    process.exit(1);
-  }
-
-  const configPath = args[0];
+async function runFileCombinationTool(configPath) {
   const config = await readConfigFile(configPath);
 
   const baseDir = path.resolve(config.baseDir || ".");
@@ -33,4 +25,4 @@ async function main() {
   );
 }
 
-main().catch(console.error);
+module.exports = { runFileCombinationTool };

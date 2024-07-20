@@ -2,11 +2,12 @@
 
 ## Overview
 
-The File Combination Tool is a Node.js script that combines multiple files from a specified directory (and its subdirectories) into a single output file. It provides options to include or exclude specific files or directories, remove header comments, and output statistics about the largest files and folders processed.
+The File Combination Tool is a Node.js script that combines multiple files from a specified directory (and its subdirectories) into a single output file. It supports various programming languages and file types, providing options to include or exclude specific files or directories, remove header comments, and output statistics about the largest files and folders processed.
 
 ## Features
 
 - Combine multiple files into a single output file
+- Support for multiple programming languages and file types
 - Include specific files/folders or process all files in the base directory
 - Exclude files/folders based on patterns
 - Remove specified header patterns from files
@@ -16,45 +17,151 @@ The File Combination Tool is a Node.js script that combines multiple files from 
 
 ## Installation
 
-1. Ensure you have Node.js installed on your system (version 12 or higher recommended).
-2. Clone this repository or download the source files.
-3. Navigate to the project directory in your terminal.
-4. Run `npm install` to install any dependencies (if applicable).
+You can use this tool without installation via npx, or you can install it globally on your system.
+
+### Using npx (recommended)
+
+No installation required. Simply run the tool using npx:
+
+```
+npx file-combination-tool [options]
+```
+
+### Global Installation
+
+To install the tool globally, run:
+
+```
+npm install -g file-combination-tool
+```
+
+Then you can use it from anywhere:
+
+```
+file-combination-tool [options]
+```
 
 ## Usage
 
-Run the script using the following command:
+You can use the tool with minimal configuration, or customize it with command-line arguments or a config file.
+
+### Simplest Usage
+
+To combine all supported files in the current directory:
 
 ```
-node index.js path/to/your/config.json
+npx file-combination-tool
 ```
 
-Where `path/to/your/config.json` is the path to your configuration file.
+This will create a file named `combined_[current-directory-name].txt` in the current directory.
 
-## Configuration
+### Command-line Arguments
 
-Create a JSON configuration file with the following structure:
+```
+npx file-combination-tool [options]
+```
+
+Options (all are optional):
+- `--baseDir`, `-b`: Base directory to process files from (default: current directory)
+- `--include`, `-i`: Files or folders to include (comma-separated)
+- `--exclude`, `-e`: Patterns to exclude (comma-separated, default: 'node_modules/,venv/,.git/')
+- `--extensions`, `-x`: File extensions to process (comma-separated, default: .js,.ts,.jsx,.tsx,.py,.rb,.java,.c,.cpp,.cs,.php,.go,.rs,.swift,.kt,.md)
+- `--output`, `-o`: Output file name (default: combined_[baseDir-name].txt)
+- `--config`, `-c`: Path to config file (if using a config file instead of command-line args)
+
+Examples:
+
+1. Combine Python files:
+   ```
+   npx file-combination-tool --extensions .py
+   ```
+
+2. Combine Java and Kotlin files:
+   ```
+   npx file-combination-tool --extensions .java,.kt
+   ```
+
+3. Exclude additional patterns:
+   ```
+   npx file-combination-tool --exclude "test/,*.spec.js"
+   ```
+
+4. Specify output file:
+   ```
+   npx file-combination-tool --output combined-project.txt
+   ```
+
+5. Combine files from a different directory:
+   ```
+   npx file-combination-tool --baseDir ../another-project
+   ```
+
+### Config File
+
+For more complex scenarios, you can use a config file:
+
+```
+npx file-combination-tool --config path/to/your/config.json
+```
+
+Config file structure:
 
 ```json
 {
   "baseDir": "/path/to/your/base/directory",
-  "include": ["folder1", "folder2/file.js"],
-  "exclude": ["\\.test\\.(js|ts|jsx|tsx)$", "\\.d\\.ts$", "fixtures/"],
+  "include": ["folder1", "folder2/file.py"],
+  "exclude": ["test/", "*.spec.py"],
+  "extensions": [".py", ".pyx"],
   "output": "combined_output.txt",
   "headerPatterns": [
-    "/\\*[\\s\\S]*?Copyright[\\s\\S]*?\\*/",
-    "/\\*\\s*\\*\\s*Licensed[\\s\\S]*?under the License\\.\\s*\\*/"
+    "#.*",
+    "'''[\\s\\S]*?'''",
+    '"""[\\s\\S]*?"""'
   ]
 }
 ```
 
-### Configuration Options
+## Supported Languages
 
-- `baseDir` (required): The base directory to process files from.
-- `include` (optional): An array of files or folders to include. If omitted, all files in the base directory will be processed.
-- `exclude` (optional): An array of regex patterns for files or folders to exclude.
-- `output` (optional): The name of the output file. Defaults to `combined_[baseDir].txt` in the current working directory.
-- `headerPatterns` (optional): An array of regex patterns for headers to remove from the files.
+The tool supports the following file extensions by default:
+.js, .ts, .jsx, .tsx, .py, .rb, .java, .c, .cpp, .cs, .php, .go, .rs, .swift, .kt, .md
+
+You can specify additional file extensions using the `--extensions` option or in the config file.
+
+## Local Development
+
+If you've cloned this repository and want to run the tool locally:
+
+1. Navigate to the project directory:
+   ```
+   cd path/to/file-combination-tool
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Run the tool using one of these methods:
+
+   a. Using node directly:
+      ```
+      node cli.js
+      ```
+
+   b. Using npm scripts:
+      ```
+      npm run combine
+      ```
+
+4. (Optional) Create a symlink for global-like usage:
+   ```
+   npm link
+   ```
+   After linking, you can use the tool from any directory:
+   ```
+   file-combination-tool
+   ```
 
 ## Output
 
@@ -66,42 +173,10 @@ The script will generate:
    - The 10 largest root-level folders processed
    - The estimated total number of tokens in the combined output
 
-## Example
-
-1. Create a configuration file named `config.json`:
-
-```json
-{
-  "baseDir": "../OpenSearch-Dashboards/src/plugins",
-  "include": ["data", "vis_builder"],
-  "exclude": [
-    "\\.test\\.(js|ts|jsx|tsx)$",
-    "\\.d\\.ts$",
-    "fixtures/",
-    "mock",
-    "api\\.md",
-    "_generated_/"
-  ],
-  "output": "combined_plugins.txt",
-  "headerPatterns": [
-    "/\\*[\\s\\S]*?Copyright[\\s\\S]*?\\*/",
-    "/\\*\\s*\\*\\s*Licensed[\\s\\S]*?under the License\\.\\s*\\*/"
-  ]
-}
-```
-
-2. Run the script:
-
-```
-node index.js config.json
-```
-
-This will process the specified plugins, combine their files (excluding test files, type definitions, fixtures, mocks, API docs, and generated files), remove the specified headers, and output the result to `combined_plugins.txt`.
-
 ## Limitations
 
-- The tool currently only processes files with the following extensions: .js, .ts, .jsx, .tsx, and .md.
 - The token counting is a simple estimate and may not match exactly with more sophisticated tokenization methods.
+- Header removal patterns are predefined for common languages. For other languages, you may need to specify custom patterns.
 
 ## Contributing
 

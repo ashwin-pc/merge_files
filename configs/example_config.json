@@ -1,5 +1,5 @@
 {
-  "baseDir": "../OpenSearch-Dashboards/src/plugins/data",
+  "baseDir": "./",
   "exclude": [
     "\\.test\\.(js|ts|jsx|tsx)$",
     "\\.d\\.ts$",
@@ -9,7 +9,7 @@
     "_generated_/",
     "additional_pattern_to_exclude"
   ],
-  "output": "data/output.txt",
+  "output": "output.txt",
   "headerPatterns": [
     "/\\*[\\s\\S]*?Copyright[\\s\\S]*?\\*/",
     "/\\*\\s*\\*\\s*Licensed[\\s\\S]*?under the License\\.\\s*\\*/"

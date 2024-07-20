@@ -13,11 +13,8 @@ function shouldSkipFile(filePath, skipPatterns) {
   return skipPatterns.some(pattern => new RegExp(pattern).test(filePath));
 }
 
-function removeHeaders(content, headerPatterns) {
-  return headerPatterns.reduce(
-    (acc, pattern) => acc.replace(new RegExp(pattern, 'g'), ""),
-    content
-  );
+function removeLicenseHeaders(content, licenseHeaders) {
+  return licenseHeaders.reduce((acc, pattern) => acc.replace(pattern, ''), content).trim();
 }
 
 function countTokens(text) {
@@ -28,6 +25,6 @@ function countTokens(text) {
 module.exports = {
   fileExists,
   shouldSkipFile,
-  removeHeaders,
+  removeLicenseHeaders,
   countTokens
 };
