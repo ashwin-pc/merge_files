@@ -1,3 +1,6 @@
 data/*
 *.txt
 node_modules
+configs/*
+!configs/self.json
+.vscode

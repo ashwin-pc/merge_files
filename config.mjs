@@ -1,4 +1,4 @@
-const fs = require("fs").promises;
+import fs from "fs/promises"
 
 async function readConfigFile(configPath) {
   try {
@@ -10,4 +10,4 @@ async function readConfigFile(configPath) {
   }
 }
 
-module.exports = { readConfigFile };
+export { readConfigFile };

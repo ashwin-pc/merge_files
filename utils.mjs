@@ -1,4 +1,4 @@
-const fs = require("fs").promises;
+import fs from "fs/promises"
 
 async function fileExists(filePath) {
   try {
@@ -22,7 +22,7 @@ function countTokens(text) {
   return tokens.filter(token => token.length > 0).length * 2;
 }
 
-module.exports = {
+export {
   fileExists,
   shouldSkipFile,
   removeLicenseHeaders,

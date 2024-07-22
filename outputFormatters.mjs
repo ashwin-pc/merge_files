@@ -28,7 +28,7 @@ function formatFileSize(bytes) {
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
-module.exports = {
+export {
   outputLargestFiles,
   outputLargestFolders,
   formatFileSize

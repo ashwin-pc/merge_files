@@ -1,13 +1,14 @@
 {
   "name": "file-combination-tool",
-  "version": "1.0.1",
+  "version": "2.0.0",
+  "type": "module",
   "description": "A tool to combine multiple files from a specific directory",
-  "main": "index.js",
+  "main": "cli.mjs",
   "bin": {
-    "file-combination-tool": "./cli.js"
+    "file-combination-tool": "./cli.mjs"
   },
   "scripts": {
-    "start": "node cli.js"
+    "start": "node cli.mjs"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,8 @@
   },
   "homepage": "https://github.com/ashwin-pc/merge_files#readme",
   "dependencies": {
+    "@octokit/rest": "^21.0.1",
+    "chalk": "^4.1.2",
     "yargs": "^17.7.2"
   }
 }

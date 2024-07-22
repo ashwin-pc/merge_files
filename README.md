@@ -2,18 +2,19 @@
 
 ## Overview
 
-The File Combination Tool is a Node.js script that combines multiple files from a specified directory (and its subdirectories) into a single output file. It supports various programming languages and file types, providing options to include or exclude specific files or directories, remove header comments, and output statistics about the largest files and folders processed.
+The File Combination Tool is a Node.js script that combines multiple files from a specified directory (and its subdirectories) or a GitHub repository folder into a single output file. It supports various programming languages and file types, providing options to include or exclude specific files or directories, remove header comments, and output statistics about the largest files and folders processed.
 
 ## Features
 
 - Combine multiple files into a single output file
-- Support for multiple programming languages and file types
-- Include specific files/folders or process all files in the base directory
+- Support for both local directories and GitHub repositories
+- Process specific files/folders or all files in the base directory/repository
 - Exclude files/folders based on patterns
 - Remove specified header patterns from files
 - Output statistics on the 20 largest files processed
 - Output statistics on the 10 largest root-level folders processed
 - Estimate the total number of tokens in the combined output
+- Colorized console output for improved readability
 
 ## Installation
 
@@ -41,11 +42,29 @@ Then you can use it from anywhere:
 file-combination-tool [options]
 ```
 
+### Local Installation
+
+If you want to clone the repository and run it locally:
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/file-combination-tool.git
+   cd file-combination-tool
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Run the tool:
+   ```
+   node cli.js [options]
+   ```
+
 ## Usage
 
-You can use the tool with minimal configuration, or customize it with command-line arguments or a config file.
-
-### Simplest Usage
+### Local Directory
 
 To combine all supported files in the current directory:
 
@@ -55,6 +74,18 @@ npx file-combination-tool
 
 This will create a file named `combined_[current-directory-name].txt` in the current directory.
 
+### GitHub Repository
+
+To combine files from a GitHub repository:
+
+```
+npx file-combination-tool --githubUrl https://github.com/username/repo/tree/branch/path/to/folder --githubToken YOUR_GITHUB_TOKEN
+```
+
+Replace `YOUR_GITHUB_TOKEN` with a valid GitHub Personal Access Token.
+
+> The token is optional, but you do run the risk of running into rate limits without it.
+
 ### Command-line Arguments
 
 ```
@@ -63,6 +94,8 @@ npx file-combination-tool [options]
 
 Options (all are optional):
 - `--baseDir`, `-b`: Base directory to process files from (default: current directory)
+- `--githubUrl`, `-g`: GitHub URL to process files from
+- `--githubToken`, `-t`: GitHub Personal Access Token for authentication
 - `--include`, `-i`: Files or folders to include (comma-separated)
 - `--exclude`, `-e`: Patterns to exclude (comma-separated, default: 'node_modules/,venv/,.git/')
 - `--extensions`, `-x`: File extensions to process (comma-separated, default: .js,.ts,.jsx,.tsx,.py,.rb,.java,.c,.cpp,.cs,.php,.go,.rs,.swift,.kt,.md)
@@ -109,6 +142,8 @@ Config file structure:
 ```json
 {
   "baseDir": "/path/to/your/base/directory",
+  "githubUrl": "https://github.com/username/repo/tree/branch/path/to/folder",
+  "githubToken": "YOUR_GITHUB_TOKEN",
   "include": ["folder1", "folder2/file.py"],
   "exclude": ["test/", "*.spec.py"],
   "extensions": [".py", ".pyx"],
@@ -128,47 +163,13 @@ The tool supports the following file extensions by default:
 
 You can specify additional file extensions using the `--extensions` option or in the config file.
 
-## Local Development
-
-If you've cloned this repository and want to run the tool locally:
-
-1. Navigate to the project directory:
-   ```
-   cd path/to/file-combination-tool
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Run the tool using one of these methods:
-
-   a. Using node directly:
-      ```
-      node cli.js
-      ```
-
-   b. Using npm scripts:
-      ```
-      npm run combine
-      ```
-
-4. (Optional) Create a symlink for global-like usage:
-   ```
-   npm link
-   ```
-   After linking, you can use the tool from any directory:
-   ```
-   file-combination-tool
-   ```
-
 ## Output
 
 The script will generate:
 
 1. A combined file containing the content of all processed files.
-2. Console output showing:
+2. Colorized console output showing:
+   - Progress of file processing
    - The 20 largest files processed (by size)
    - The 10 largest root-level folders processed
    - The estimated total number of tokens in the combined output
@@ -177,6 +178,7 @@ The script will generate:
 
 - The token counting is a simple estimate and may not match exactly with more sophisticated tokenization methods.
 - Header removal patterns are predefined for common languages. For other languages, you may need to specify custom patterns.
+- When using the GitHub functionality, be aware of API rate limits, especially for large repositories.
 
 ## Contributing
 
