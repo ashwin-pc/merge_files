@@ -2,6 +2,7 @@
 
 import path from "path";
 import os from "os";
+import chalk from 'chalk';
 import { readConfigFile } from "./config.mjs";
 import { combineFiles } from "./fileProcessor.mjs";
 import yargs from "yargs";
@@ -14,39 +15,17 @@ const defaultLicenseHeaders = [
     /^(\/\*[\s\S]*?(\*\/|(?:license|copyright|spdx|contrib)[\s\S]*?\*\/)[\s\*]*)+/gi
 ];
 
-// ANSI escape codes for coloring
-const colors = {
-    red: "\x1b[31m",
-    green: "\x1b[32m",
-    yellow: "\x1b[33m",
-    blue: "\x1b[34m",
-    magenta: "\x1b[35m",
-    cyan: "\x1b[36m",
-    reset: "\x1b[0m"
-};
-
 function getOpenFolderCommand(relativeFilePath) {
     const folderPath = path.dirname(relativeFilePath);
     const platform = os.platform();
 
-    let command;
-
     if (platform === 'win32') {
-        // Windows
-        command = `start ${folderPath}`;
+        return `start ${folderPath}`;
     } else if (platform === 'darwin') {
-        // macOS
-        command = `open ${folderPath}`;
+        return `open ${folderPath}`;
     } else {
-        // Other (Linux and others)
-        command = `xdg-open ${folderPath}`;
+        return `xdg-open ${folderPath}`;
     }
-
-    return command;
-}
-
-function colorizeCommand(command, color) {
-    return `${color}${command}${colors.reset}`;
 }
 
 const argv = yargs(hideBin(process.argv))
@@ -90,48 +69,60 @@ const argv = yargs(hideBin(process.argv))
     })
     .option('githubToken', {
         alias: 't',
-        describe: 'GitHub Personal Access Token for authentication',
+        describe: 'GitHub Personal Access Token for authentication (can also be set via GITHUB_ACCESS_TOKEN environment variable)',
         type: 'string'
     })
     .help()
     .argv;
 
-let config;
+async function main() {
+    let config;
 
-if (argv.config) {
-    config = await readConfigFile(argv.config);
-} else {
-    config = {
-        baseDir: argv.baseDir,
-        githubUrl: argv.githubUrl,
-        include: argv.include ? argv.include.split(',') : [],
-        exclude: argv.exclude ? argv.exclude.split(',') : ['node_modules/', 'venv/', '.git/'],
-        extensions: argv.extensions ? argv.extensions.split(',') : defaultExtensions,
-        output: argv.output || `combined_${path.basename(argv.baseDir)}.txt`,
-        licenseHeaders: defaultLicenseHeaders
-    };
+    if (argv.config) {
+        config = await readConfigFile(argv.config);
+    } else {
+        config = {
+            baseDir: argv.baseDir,
+            githubUrl: argv.githubUrl,
+            include: argv.include ? argv.include.split(',') : [],
+            exclude: argv.exclude ? argv.exclude.split(',') : ['node_modules/', 'venv/', '.git/'],
+            extensions: argv.extensions ? argv.extensions.split(',') : defaultExtensions,
+            output: argv.output || `combined_${path.basename(argv.baseDir)}.txt`,
+            licenseHeaders: defaultLicenseHeaders
+        };
+    }
+
+    const baseDir = config.githubUrl || path.resolve(config.baseDir);
+    const includePaths = config.include || [];
+    const skipPatterns = config.exclude || [];
+    const extensions = config.extensions || defaultExtensions;
+    const outputPath = config.output ? path.resolve(config.output) : path.join(process.cwd(), `combined_${path.basename(baseDir)}.txt`);
+    const licenseHeaders = config.licenseHeaders || defaultLicenseHeaders;
+
+    const githubToken = process.env.GITHUB_ACCESS_TOKEN || argv.githubToken;
+
+    if (config.githubUrl && !githubToken) {
+        console.warn(chalk.yellow("Warning: No GitHub token provided. API rate limits may apply."));
+    }
+
+    await combineFiles(
+        baseDir,
+        includePaths,
+        outputPath,
+        skipPatterns,
+        licenseHeaders,
+        extensions,
+        !!config.githubUrl,
+        githubToken
+    );
+
+    // Output command to open the folder containing the output file
+    const command = getOpenFolderCommand(outputPath);
+    console.log(chalk.cyan("\nTo open the folder containing the output file, run the following command:"));
+    console.log(chalk.green(command));
 }
 
-const baseDir = config.githubUrl || path.resolve(config.baseDir);
-const includePaths = config.include || [];
-const skipPatterns = config.exclude || [];
-const extensions = config.extensions || defaultExtensions;
-const outputPath = config.output ? path.resolve(config.output) : path.join(process.cwd(), `combined_${path.basename(baseDir)}.txt`);
-const licenseHeaders = config.licenseHeaders || defaultLicenseHeaders;
-
-await combineFiles(
-    baseDir,
-    includePaths,
-    outputPath,
-    skipPatterns,
-    licenseHeaders,
-    extensions,
-    !!config.githubUrl,
-    argv.githubToken
-);
-
-// Output command to open the folder containing the output file
-const command = getOpenFolderCommand(outputPath);
-const colorizedCommand = colorizeCommand(command, colors.green);
-console.log(`\nTo open the folder containing the output file, run the following command:`);
-console.log(colorizedCommand);
+main().catch(error => {
+    console.error(chalk.red("Error:"), error.message);
+    process.exit(1);
+});
